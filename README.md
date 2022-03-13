@@ -1,5 +1,9 @@
 # Serialize and deserialize between time in milli-seconds and UTC RFC 2339 time
 
+![ci-stable](https://github.com/winksaville/serde-utc-time-ms/actions/workflows/ci-stable.yml/badge.svg)
+![ci-nightly](https://github.com/winksaville/serde-utc-time-ms/actions/workflows/ci-nightly.yml/badge.svg)
+[![codecov](https://codecov.io/gh/winksaville/serde-utc-time-ms/branch/main/graph/badge.svg)](https://codecov.io/gh/winksaville/time-ms-conversions)
+
 For example: "1970-01-01T00:00:00.000+00:00" <-> 0
 
 ```
