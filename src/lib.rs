@@ -2,7 +2,8 @@ use serde::{de, Deserialize, Deserializer, Serializer};
 use serde_json::Value;
 
 use time_ms_conversions::{
-    dt_str_to_utc_time_ms, time_ms_to_utc_string, TzMassaging::CondAddTzUtc,
+    dt_str_to_utc_time_ms, time_ms_to_utc_string, time_ms_to_utc_z_string,
+    TzMassaging::CondAddTzUtc,
 };
 
 /// Convert a string to UTC time in ms as i64
@@ -73,6 +74,48 @@ where
     S: Serializer,
 {
     s.serialize_str(&time_ms_to_utc_string(*time_ms))
+}
+
+/// Convert a time in ms to csv with UTC represented
+/// as trailing "Z" rather than "+00:00".
+///
+/// # Example
+/// ```
+/// use serde_utc_time_ms::{de_string_to_utc_time_ms, se_time_ms_to_utc_z_string};
+/// use serde::{Serialize, Deserialize};
+///
+/// #[derive(Serialize, Deserialize)]
+/// struct TimeRec {
+///     #[serde(rename = "Time")]
+///     #[serde(deserialize_with = "de_string_to_utc_time_ms")]
+///     #[serde(serialize_with = "se_time_ms_to_utc_z_string")]
+///     time: i64,
+///
+///     #[serde(rename = "Salutation")]
+///     salutation: String,
+/// }
+///
+/// let trs = vec![
+///     TimeRec { time: 0, salutation: "hi".to_owned() },
+/// ];
+///
+/// let mut wtr = csv::Writer::from_writer(vec![]);
+/// wtr.serialize(&trs[0]).expect("Error serializing");
+///
+/// let vec = wtr.into_inner().expect("Unexpected into Vec<u8>");
+/// let data = String::from_utf8(vec).expect("Unexpected convert vec to String");
+///
+/// let csv = "Time,Salutation
+/// 1970-01-01T00:00:00.000Z,hi
+/// ";
+///
+/// assert_eq!(data, csv,);
+/// ```
+pub fn se_time_ms_to_utc_z_string<S>(time_ms: &i64, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(&time_ms_to_utc_z_string(*time_ms))
 }
 
 #[cfg(test)]
