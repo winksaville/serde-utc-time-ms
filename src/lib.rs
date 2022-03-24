@@ -1,5 +1,4 @@
 use serde::{de, Deserialize, Deserializer, Serializer};
-use serde_json::Value;
 
 use time_ms_conversions::{
     dt_str_to_utc_time_ms, time_ms_to_utc_string, time_ms_to_utc_z_string,
@@ -29,10 +28,8 @@ use time_ms_conversions::{
 pub fn de_string_to_utc_time_ms<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<i64, D::Error> {
-    Ok(match Value::deserialize(deserializer)? {
-        Value::String(s) => dt_str_to_utc_time_ms(&s, CondAddTzUtc).map_err(de::Error::custom)?,
-        _ => return Err(de::Error::custom("Expecting String or Number")),
-    })
+    let s = String::deserialize(deserializer)?;
+    dt_str_to_utc_time_ms(s.as_str(), CondAddTzUtc).map_err(de::Error::custom)
 }
 
 /// Convert a time in ms to csv
